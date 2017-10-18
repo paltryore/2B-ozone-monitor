@@ -1,16 +1,16 @@
 # ozone-monitor
-Processing data output from a <a href="http://www.twobtech.com/model-106-l.html">2B Technologies 106-L Ozone Monitor.</a>
+Processing data output from a <a href="http://www.twobtech.com/model-106-l.html">2B Technologies 106-L Ozone Monitor</a> with Python 3.
 
 The 106-L outputs data through a serial port every 10 seconds in a single line:
 ```shell
 Ozone(ppb),Cell temp, Cell pressure, Flow rate, Photodiode Voltage, Date (DD/MM/YY), Time (HH:MM:SS)
 ```
 
-I am using <a href="http://ttssh2.osdn.jp/index.html.en">TeraTerm</a> to read and temporarily log data, and Windows task scheduler to call these scripts. 
+I am using <a href="https://pythonhosted.org/pyserial/">pySerial</a> in ozone_serial.py to read and temporarily log data, and Windows task scheduler to call ozoneoutput3.pyw. 
 
-ozoneoutput.py reads the log file, checks for errors, and writes ozonetemp.log
+ozoneoutput3.pyw reads the log file, checks for errors, and writes ozonetemp.log
 
-ozonescript1.5.py reads ozonetemp.log, averages the readings, appends to the daily log, and creates graphs with matplotlib
+ozonescript3.pyw reads ozonetemp.log, averages the readings, appends to the daily log, creates graphs with matplotlib, and calls a WinSCP batch script to synchronize to a server that hosts the page.
 
 Converting this:
 ```shell
