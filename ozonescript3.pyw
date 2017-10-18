@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 27 17:08:25 2017
+Created on Wed Oct 11 15:54:29 2017
 
 @author: paltryore
 """
@@ -16,11 +16,16 @@ Created on Thu Apr 27 17:08:25 2017
 ## 1.3 - added currentozone.png for website
 ## 1.4 - added findXdayhigh; 7dayhigh.png,30dayhigh.png
 ## 1.5 - added 15 minute averaging
+## 3   - Python3 version, Serial handling with python
 
 import matplotlib.pyplot as plt # Makes MATLAB-like graphs
 import shutil # copy files
 from datetime import datetime,timedelta # python handling HH:MM:SS
 import numpy as np
+import sys
+from subprocess import Popen
+
+debug = False
 
 def findXdayhigh(currentDay,X): # checks ozone logs from past X days to find the highest ozone value. 
     # returns ['YYYY-MM-DD','HH:MM:SS', float(ozone in ppb)]
@@ -38,7 +43,7 @@ def findXdayhigh(currentDay,X): # checks ozone logs from past X days to find the
             for i in data:
                 if float(i[0])>Xdayhigh[2]:
                     Xdayhigh=[i[5],i[6],float(i[0])]
-        except:  print "No data from "+targetDay2
+        except:  print("No data from "+targetDay2)
     date = Xdayhigh[0][0:10]
     return [date,Xdayhigh[1],Xdayhigh[2]]
 
@@ -56,7 +61,7 @@ def main(filename):
         
     try: # open data archive from previously in the day, if exists, load into data
         with open("ozone/ozone-"+currentDay+".log") as f: 
-            print "loaded ozone/ozone-"+currentDay+".log"
+            print("loaded ozone/ozone-"+currentDay+".log")
             oldlines = f.read().splitlines()
         for i in range(len(oldlines)):
             olddata.append(oldlines[i].strip().split(','))
@@ -64,7 +69,7 @@ def main(filename):
             date = olddata[i][5][0:10]
             data.append([date,time,float(olddata[i][0])])
     except:
-        print "No previous data from "+currentDay
+        print("No previous data from "+currentDay)
     
 
 
@@ -72,15 +77,20 @@ def main(filename):
         linesRaw = f.read().splitlines() # linesraw is an array of strings. Each string is one line from the file
         f.seek(0)
         f.truncate() # deletes all lines in the output file to keep it from growing too large
+
+    if len(linesRaw) < 1:
+        print("No data found in "+filename+" Exiting")
+        sys.exit()
+
    
 
         
     for i in range(len(linesRaw)):
         lines.append(linesRaw[i].strip().split(','))
         #if datecheck==True:
-#            print i,x
-#            print lines
-        print len(lines[i]), lines[i]
+#            print(i,x)
+#            print(lines)
+        if debug:  print(len(lines[i]), lines[i])
 ##        # error handling:
 ##        if len(lines[-1])!=7:
 ##            lines.pop(-1) #remove latest item b/c log line only contained portion of entry
@@ -103,7 +113,7 @@ def main(filename):
 #            data.append([date,time,float(lines[i-x][0])])
 #            oldLines=lines[:-1] # don't include first entry of new day
 #            lines=[lines[-1]] # update lines to only hold first entry of new day
-##            print lines
+##            print(lines)
 #            currentDay=date
 ##            datecheck=True
 #            x=i
@@ -116,7 +126,7 @@ def main(filename):
     for j in range(5):
         average[j] = round(sumdata[j] / len(lines),3)
     median = int(len(lines)/2)
-    print 'median'+str(median)
+    if debug:  print('median'+str(median))
     time = lines[median][6]
     data.append([date,time,average[0]])
   
@@ -139,9 +149,9 @@ def main(filename):
     # Make today's graph
     t1 = []
     ozone = []
-    print "graphed data:"
+    if debug:  print("graphed data:")
     for i in data:
-        print i
+        if debug:  print(i)
         t1.append(datetime.strptime(date+"-"+i[1],"%Y-%m-%d-%H:%M:%S"))
         ozone.append(i[2])
     t=np.array(t1)
@@ -213,7 +223,9 @@ def main(filename):
     ## daily ozone log
     if archive==True: shutil.copy2("ozone/ozone-"+date+".log","ozone/ozonetoday.log")
     
-    # WinSCP monitors the Desktop/ozone folder for changes and automatically uploads to server
+    # Call WinSCP bat file to synchronize ozone folder to server
+    p = Popen("winscp_script.bat", cwd=r"C:\PATHTOBATFILE")  # need to put in correct batch file path
+    stdout, stderr = p.communicate()
         
 filelist=["ozonetemp.log"]
 
