@@ -2,7 +2,7 @@
 """
 Created on Wed Oct 11 15:54:29 2017
 
-@author: paltryore
+@author: stellarore
 """
 
 # 2B Technologies 106L Ozone monitor records data for each interval as single line:
