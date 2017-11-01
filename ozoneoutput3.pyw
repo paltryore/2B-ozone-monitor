@@ -2,7 +2,7 @@
 """
 Created on Wed Oct 11 15:54:29 2017
 
-@author: steallarore
+@author: stellarore
 """
 
 # activated by windows task manager
